@@ -1,0 +1,296 @@
+<div class="container py-5">
+    <form nz-form [formGroup]="taxForm">
+        <h1 class="text-center">Submit Tax Filling</h1>
+
+        <div class="d-flex justify-content-center my-5">
+            <div class="stepper">
+                <nz-steps [nzCurrent]="current" [nzLabelPlacement]="'vertical'">
+                    <nz-step nzTitle="Input Detail"></nz-step>
+                    <nz-step nzTitle="Review & Confirm"></nz-step>
+                </nz-steps>
+            </div>
+        </div>
+
+        <div class="row d-flex justify-content-center">
+            <div class="col-lg-8 col-md-10 col-sm-12 col-12">
+                <div class="card p-3 tax-card">
+                    <div *ngIf="current === 0">
+                        <section id="taxFilingDetail">
+                            <div class="inputDetail">
+                                <p class="text-left text-header">1. Tax Filling Detail</p>
+                            </div>
+
+                            <div class="typeOfFiling my-3" id="typeOfFiling">
+                                <p class="form-label">
+                                    Type of Filling <span class="text-danger">*</span>
+                                </p>
+                                <mat-radio-group formControlName="filingType"
+                                    (ngModelChange)="selectType(taxForm.value.filingType)">
+                                    <mat-radio-button *ngFor="let type of typeOfFilingSelect" class="mx-2"
+                                        [value]="type.value">
+                                        {{ type.label }}
+                                    </mat-radio-button>
+                                </mat-radio-group>
+                            </div>
+
+                            <div class="d-xxl-flex d-xl-flex d-lg-flex d-md-flex d-sm-block d-block my-3">
+                                <div class="vatMonth">
+                                    <p class="form-label mx-2 mb-0 mt-2">
+                                        VAT Month<span class="text-danger">*</span>
+                                    </p>
+                                    <div class="d-xxl-flex d-xl-flex d-lg-flex d-md-flex d-sm-block d-block">
+                                        <div class="form-group m-2">
+                                            <nz-form-item>
+                                                <nz-form-control nzErrorTip="โปรดระบุ">
+                                                    <nz-select (change)="selectMonth(taxForm.value.month)"
+                                                        formControlName="month" id="month" name="month">
+                                                        <nz-option *ngFor="let month of monthSelect; let i = index"
+                                                            [nzValue]="month.value" [nzLabel]="month.label"
+                                                            [nzDisabled]="taxForm.value.year === currentYear && month.value > currentMonth"></nz-option>
+                                                    </nz-select>
+                                                </nz-form-control>
+                                            </nz-form-item>
+                                        </div>
+
+                                        <div class="form-group m-2">
+                                            <nz-form-item>
+                                                <nz-form-control nzErrorTip="โปรดระบุ">
+                                                    <nz-select formControlName="year" id="year" name="year">
+                                                        <nz-option *ngFor="let year of yearSelect" [nzValue]="year"
+                                                            [nzLabel]="year"></nz-option>
+                                                    </nz-select>
+                                                </nz-form-control>
+                                            </nz-form-item>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="taxForm.value.filingType === '1'" class="form-group m-2">
+                                    <label for="Type" class="form-label">
+                                        Type<span class="text-danger">*</span>
+                                    </label>
+                                    <select formControlName="type" class="form-select">
+                                        <option selected value="on-time">On-Time</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="taxComputation">
+                            <div class="inputDetail d-flex justify-content-between">
+                                <p class="text-left text-header">2. Tax Computation</p>
+
+                                <a href="https://www.kasikornbank.com/en/rate/pages/foreign-exchange.aspx"
+                                    target="_blank" class="link">
+                                    View Exchange Rate
+                                </a>
+                            </div>
+
+                            <p class="text-header my-3">
+                                Provide total value taxable electronic service<span class="text-danger">*</span>
+                            </p>
+
+                            <div class="row my-2">
+                                <div class="col-lg-7 col-md-6 col-sm-12 col-12 my-auto">
+                                    <p class="m-0">
+                                        1. Total value of taxable electronic service exclusive of VAT
+                                    </p>
+                                </div>
+                                <div class="col-lg-5 col-md-6 col-sm-12 col-12">
+                                    <nz-form-item>
+                                        <nz-form-control nzErrorTip="โปรดระบุ">
+                                            <nz-input-number id="saleAmount" (nzBlur)="calVat(taxForm.value.saleAmount)"
+                                                [nzSize]="'large'" [nzPrecision]="2" nzPrecisionMode="toFixed"
+                                                [nzFormatter]="formatterPrice" formControlName="saleAmount"
+                                                nzPlaceHolder="THB">
+                                            </nz-input-number>
+                                            <span class="suffix">THB</span>
+                                        </nz-form-control>
+                                    </nz-form-item>
+                                </div>
+                            </div>
+
+                            <div class="row my-2">
+                                <div class="col-lg-7 col-md-6 col-sm-12 col-12 my-auto">
+                                    <p class="m-0">
+                                        2. Total VAT to be remitted (7% of 1.)
+                                    </p>
+                                </div>
+                                <div class="col-lg-5 col-md-6 col-sm-12 col-12">
+                                    <nz-form-item>
+                                        <nz-form-control nzErrorTip="Invalid Tax">
+                                            <nz-input-number [nzPrecision]="2" nzPrecisionMode="toFixed"
+                                                (input)="checkVat(taxForm.value.taxAmount)" [nzPrecision]="2"
+                                                id="taxAmount" [nzSize]="'large'" [nzFormatter]="formatterPrice"
+                                                formControlName="taxAmount" nzPlaceHolder="THB">
+                                            </nz-input-number>
+                                            <span class="suffix">THB</span>
+                                        </nz-form-control>
+                                    </nz-form-item>
+                                </div>
+                            </div>
+
+                            <div *ngIf="taxForm.value.filingType === '1'">
+                                <p class="text-header my-3">
+                                    In case of late filing and payment, or additional filing
+                                </p>
+
+                                <div class="row my-2">
+                                    <div class="col-lg-7 col-md-6 col-sm-12 col-12 my-auto">
+                                        <p class="m-0">
+                                            3. Surcharge
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-5 col-md-6 col-sm-12 col-12">
+                                        <nz-form-item>
+                                            <nz-form-control nzErrorTip="โปรดระบุ">
+                                                <nz-input-number [nzPrecision]="2" nzPrecisionMode="toFixed"
+                                                    [nzPrecision]="2" id="surcharge" [nzSize]="'large'" nzDisabled
+                                                    [nzFormatter]="formatterPrice" formControlName="surcharge"
+                                                    nzPlaceHolder="THB">
+                                                </nz-input-number>
+                                                <span class="suffix">THB</span>
+                                            </nz-form-control>
+                                        </nz-form-item>
+                                    </div>
+                                </div>
+                                <div class="row my-2">
+                                    <div class="col-lg-7 col-md-6 col-sm-12 col-12 my-auto">
+                                        <p class="m-0">
+                                            4. Penalty
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-5 col-md-6 col-sm-12 col-12">
+                                        <nz-form-item>
+                                            <nz-form-control nzErrorTip="โปรดระบุ">
+                                                <nz-input-number [nzPrecision]="2" nzPrecisionMode="toFixed"
+                                                    [nzPrecision]="2" id="penalty" [nzSize]="'large'" nzDisabled
+                                                    [nzFormatter]="formatterPrice" formControlName="penalty"
+                                                    nzPlaceHolder="THB">
+                                                </nz-input-number>
+                                                <span class="suffix">THB</span>
+                                            </nz-form-control>
+                                        </nz-form-item>
+                                    </div>
+                                </div>
+                                <div class="row my-2">
+                                    <div class="col-lg-7 col-md-6 col-sm-12 col-12 my-auto">
+                                        <p class="m-0">
+                                            5. Total amount of VAT, surcharge, and penalty to be remitted (2 + 3 + 4)
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-5 col-md-6 col-sm-12 col-12">
+                                        <nz-form-item>
+                                            <nz-form-control nzErrorTip="โปรดระบุ">
+                                                <nz-input-number [nzPrecision]="2" nzPrecisionMode="toFixed"
+                                                    [nzPrecision]="2" id="totalAmount" [nzSize]="'large'" nzDisabled
+                                                    [nzFormatter]="formatterPrice" formControlName="totalAmount"
+                                                    nzPlaceHolder="THB">
+                                                </nz-input-number>
+                                                <span class="suffix">THB</span>
+                                            </nz-form-control>
+                                        </nz-form-item>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div *ngIf="current === 1">
+                        <section id="taxFilingDetail">
+                            <div class="inputDetail">
+                                <p class="text-left text-header">Tax Filling Detail</p>
+                            </div>
+
+                            <div class="row my-2">
+                                <div class="col-lg-2 col-md-3 col-sm-3 col-4">Type of filing</div>
+                                <div class="col-lg-10 col-md-9 col-sm-9 col-8">
+                                    {{ typeOfFilingSelect[+taxForm.value.filingType].label }}</div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="col-lg-2 col-md-3 col-sm-3 col-4">VAT Month</div>
+                                <div class="col-lg-10 col-md-9 col-sm-9 col-8">
+                                    {{ monthSelect[+taxForm.value.month].label }} {{ taxForm.value.year }}</div>
+                            </div>
+                        </section>
+
+
+                        <section id="taxComputation">
+                            <div class="my-5">
+                                <div class="inputDetail d-flex justify-content-between">
+                                    <p class="text-left text-header">Tax Computation</p>
+                                </div>
+
+                                <div class="row my-3">
+                                    <div class="col-lg-8 col-md-8 col-sm-12 col-12">
+                                        <p class="text-header">
+                                            Total value of taxable electronic service exclusive of VAT
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+                                        <p class="text-right">
+                                            {{ taxForm.value.saleAmount }} THB
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row my-3">
+                                    <div class="col-lg-8 col-md-8 col-sm-12 col-12">
+                                        <p class="text-headert">
+                                            Total VAT to be remitted
+                                        </p>
+                                        <p class="text-left">
+                                            (7% of Total value pf taxable electronic service exclusive of VAT)
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+                                        <p class="text-right">
+                                            {{ taxForm.value.taxAmount }} THB
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="row my-3">
+                                    <div class="col-lg-8 col-md-8 col-sm-12 col-12">
+                                        <p class="text-header">
+                                            Total Amount Payable
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+                                        <p class="text-header text-right">
+                                            {{ taxForm.value.taxAmount }} THB
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </section>
+
+                        <section id="Declaration">
+                            <div class="my-5">
+                                <div class="inputDetail d-flex justify-content-between">
+                                    <p class="text-left text-header">Declaration</p>
+                                </div>
+                                <p class="text-left">
+                                    I hereby certify that information given above are true and correct and agree to be
+                                    bound by such information
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div *ngIf="current === 0" class="d-flex my-4">
+                    <div (click)="back()" class="btn btn-outline-dark rounded-pill px-4">
+                        Back
+                    </div>
+                    <div (click)="next()" class="btn btn-outline-dark rounded-pill px-4 mx-3">
+                        Next
+                    </div>
+                </div>
+
+                <div *ngIf="current === 1" class="d-flex justify-content-center my-4">
+                    <div (click)="confirmAndSubmit()" class="btn btn-outline-dark rounded-pill px-4">
+                        Confirm and Submit
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

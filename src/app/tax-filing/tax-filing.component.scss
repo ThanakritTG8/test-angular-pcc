@@ -1,0 +1,56 @@
+:host {
+    ::ng-deep {
+        .ant-form-item {
+            margin: 0;
+        }
+
+        .ant-input-number-lg input {
+            text-align: right;
+            padding-right: 50px;
+        }
+
+        .ant-input-number-handler-wrap {
+            display: none;
+        }
+
+        .ant-steps-item-title {
+            font-size: 14px;
+        }
+
+        .ant-form-item .ant-cascader-picker,
+        .ant-form-item .ant-select {
+            width: 125px;
+        }
+    }
+}
+
+.tax-card {
+    // width: 750px;
+    // max-width: 100%;
+
+    .inputDetail {
+        border-bottom: 1px solid;
+
+        p.text-header {
+            font-size: 17px;
+        }
+    }
+}
+
+.text-header {
+    font-weight: bold;
+}
+
+.link {
+    color: #000;
+}
+
+span.suffix {
+    position: absolute;
+    right: 14px;
+    bottom: 9px;
+}
+
+nz-input-number {
+    width: 100%;
+}
